@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <EditText android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:hint="IP-Adresse"
+              android:id="@+id/remoteAddress"/>
+
+    <TextView android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              style="@style/TextAppearance.AppCompat.Medium"
+              android:id="@+id/ipAddress"/>
+
+    <Button android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Connect"
+            android:onClick="connectToServer"/>
+
+    <LinearLayout
+            android:id="@+id/button_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@android:color/black">
+
+        <Button
+                android:id="@+id/left_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="LEFT"
+                android:padding="10dp"
+                android:onClick="turnLeft"/>
+
+        <Button
+                android:id="@+id/right_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="RIGHT"
+                android:padding="10dp"
+                android:onClick="turnRight"/>
+
+    </LinearLayout>
+
+</LinearLayout>
