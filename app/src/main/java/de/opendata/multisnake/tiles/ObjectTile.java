@@ -1,4 +1,4 @@
-package de.opendata.multisnake;
+package de.opendata.multisnake.tiles;
 
 /**
  * Created by bambus on 16.06.16.
