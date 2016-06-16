@@ -5,6 +5,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import org.java_websocket.server.WebSocketServer;
+
+import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -12,8 +15,9 @@ public class MainActivity extends AppCompatActivity {
     private GameField gameFieldView;
 
     private Thread gameThread;
+	private WebSocketServer server;
 
-    @Override
+	@Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
@@ -61,18 +65,40 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
-
         super.onStart();
+		server = GameServer.getInstance(Utils.getIPAddress(true), new GameController() {
 
-    }
+			@Override
+			public void onLeft() {
+				Log.i("SNAKE", "left");
+				turnLeft(null);
+			}
+
+			@Override
+			public void onRight() {
+				Log.i("SNAKE", "right");
+				turnRight(null);
+			}
+		});
+
+
+	}
 
     @Override
     protected void onPause() {
 
         super.onPause();
         gameThread.interrupt();
-
-    }
+		try {
+			server.stop();
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 
     public void turnLeft(View view) {
         gameHandler.turnSnake(GameHandler.Control.LEFT);

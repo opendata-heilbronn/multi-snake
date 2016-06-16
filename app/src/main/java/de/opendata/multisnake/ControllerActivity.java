@@ -1,15 +1,14 @@
 package de.opendata.multisnake;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
-import org.java_websocket.server.WebSocketServer;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -30,7 +29,7 @@ public class ControllerActivity extends AppCompatActivity {
 	@Override
 	protected void onStart() {
 		super.onStart();
-		server = GameServer.getInstance(Utils.getIPAddress(true), new GameController() {
+		/*server = GameServer.getInstance(Utils.getIPAddress(true), new GameController() {
 
 			@Override
 			public void onLeft() {
@@ -41,13 +40,14 @@ public class ControllerActivity extends AppCompatActivity {
 			public void onRight() {
 				Log.i("SNAKE", "right");
 			}
-		});
+		});*/
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
-		server.interrupt();
+		//server.interrupt();
+		webSocketClient.close();
 	}
 
 	public void connectToServer(View view) {
@@ -57,6 +57,8 @@ public class ControllerActivity extends AppCompatActivity {
 				@Override
 				public void onOpen(ServerHandshake serverHandshake) {
 					Log.i("Websocket", "Opened");
+					//Toast.makeText(ControllerActivity.this, "Connected", Toast.LENGTH_SHORT).show();
+
 					//webSocketClient.send("Hello from " + Build.MANUFACTURER + " " + Build.MODEL);
 				}
 
@@ -76,10 +78,14 @@ public class ControllerActivity extends AppCompatActivity {
 				@Override
 				public void onClose(int i, String s, boolean b) {
 					Log.i("Websocket", "Closed " + s);
+					//Toast.makeText(ControllerActivity.this, "Closed", Toast.LENGTH_SHORT).show();
+
 				}
 
 				@Override
 				public void onError(Exception e) {
+				//	Toast.makeText(ControllerActivity.this, "Error: "+e.getMessage(), Toast.LENGTH_SHORT).show();
+
 					Log.i("Websocket", "Error " + e.getMessage());
 				}
 			};
@@ -88,17 +94,25 @@ public class ControllerActivity extends AppCompatActivity {
 			e.printStackTrace();
 		}
 		webSocketClient.connect();
+		Toast.makeText(ControllerActivity.this, "Connecting...", Toast.LENGTH_SHORT).show();
+
 	}
 
 	public void turnLeft(View view) {
-		if (webSocketClient != null && webSocketClient.getConnection() != null) {
+		if (webSocketClient != null && webSocketClient.getConnection() != null && webSocketClient.getConnection()
+				.isOpen()) {
 			webSocketClient.send("command:left");
+		} else {
+			Toast.makeText(ControllerActivity.this, "Not connected", Toast.LENGTH_SHORT).show();
 		}
 	}
 
 	public void turnRight(View view) {
-		if (webSocketClient != null && webSocketClient.getConnection() != null) {
+		if (webSocketClient != null && webSocketClient.getConnection() != null && webSocketClient.getConnection()
+				.isOpen()) {
 			webSocketClient.send("command:right");
+		} else {
+			Toast.makeText(ControllerActivity.this, "Not connected", Toast.LENGTH_SHORT).show();
 		}
 	}
 }

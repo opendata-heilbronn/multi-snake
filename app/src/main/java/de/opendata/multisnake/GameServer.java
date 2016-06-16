@@ -16,20 +16,22 @@ public class GameServer extends WebSocketServer {
 		this.gameController = gameController;
 	}
 
-	public static Thread getInstance(String host, GameController gameController) {
+	public static WebSocketServer getInstance(String host, GameController gameController) {
 		int port = 8887;
 		WebSocketServer server = new GameServer(new InetSocketAddress(host, port), gameController);
-		Thread thread = new Thread(server);
-		thread.start();
-		return thread;
+		server.start();
+		Log.i("SNAKE", "WebSocket server started");
+		return server;
 	}
 
 	@Override
 	public void onOpen(WebSocket conn, ClientHandshake handshake) {
+		Log.i("SNAKE", "opened");
 	}
 
 	@Override
 	public void onClose(WebSocket conn, int code, String reason, boolean remote) {
+		Log.i("SNAKE", "closed");
 	}
 
 	@Override
@@ -49,5 +51,6 @@ public class GameServer extends WebSocketServer {
 
 	@Override
 	public void onError(WebSocket conn, Exception ex) {
+		ex.printStackTrace();
 	}
 }
