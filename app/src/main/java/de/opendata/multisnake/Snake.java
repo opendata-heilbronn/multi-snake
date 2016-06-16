@@ -3,6 +3,8 @@ package de.opendata.multisnake;
 import java.util.LinkedList;
 import java.util.List;
 
+import de.opendata.multisnake.tiles.ObjectTile;
+
 /**
  * Created by bambus on 16.06.16.
  */

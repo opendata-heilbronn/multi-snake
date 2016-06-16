@@ -8,6 +8,9 @@ import android.view.View;
 
 import java.util.List;
 
+import de.opendata.multisnake.tiles.ObjectTile;
+import de.opendata.multisnake.tiles.Obstacle;
+
 /**
  * Created by bambus on 16.06.16.
  */
@@ -18,31 +21,16 @@ public class GameField extends View {
 
     private GameHandler gameHandler;
 
-    private int backgroundColor;
-    private int fruitColor;
-    private int snakeColor;
-
     public GameField(Context context) {
         super(context);
-        init();
     }
 
     public GameField(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
     }
 
     public GameField(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
-    }
-
-    private void init()  {
-
-        backgroundColor = getContext().getResources().getColor(android.R.color.black);
-        fruitColor = getContext().getResources().getColor(android.R.color.holo_green_light);
-        snakeColor = getContext().getResources().getColor(android.R.color.holo_red_light);
-
     }
 
     public void setGameHandler(GameHandler gameHandler) {
@@ -56,10 +44,22 @@ public class GameField extends View {
 
         //Background draw
         Paint paint = new Paint();
-        paint.setColor(backgroundColor);
+        paint.setColor(gameHandler.getLevel().getBackgroundColor());
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
 
         canvas.drawRect(0, 0, getWidth(), getHeight(), paint);
+
+        //Obstacles draw
+        List<Obstacle> obstacles = gameHandler.getLevel().getObstacles();
+        if(obstacles.size() > 0) {
+
+            for (Obstacle obstacle : obstacles) {
+
+                drawObstacleTile(obstacle, canvas);
+
+            }
+
+        }
 
         //Fruits draw
         List<ObjectTile> fruits = gameHandler.getFruits();
@@ -96,7 +96,7 @@ public class GameField extends View {
         float dy = ((float) getHeight()) / FIELD_HEIGHT;
 
         Paint snakePaint = new Paint();
-        snakePaint.setColor(snakeColor);
+        snakePaint.setColor(DefaultColor.SNAKE_COLOR.getColor());
         snakePaint.setStyle(Paint.Style.FILL_AND_STROKE);
 
         canvas.drawRect(x * dx, y * dy, (x+1) * dx, (y+1) * dy, snakePaint);
@@ -112,7 +112,23 @@ public class GameField extends View {
         float dy = ((float) getHeight()) / FIELD_HEIGHT;
 
         Paint fruitPaint = new Paint();
-        fruitPaint.setColor(fruitColor);
+        fruitPaint.setColor(DefaultColor.FRUIT_COLOR.getColor());
+        fruitPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+
+        canvas.drawRect(x * dx, y * dy, (x+1) * dx, (y+1) * dy, fruitPaint);
+
+    }
+
+    private void drawObstacleTile(ObjectTile tile, Canvas canvas) {
+
+        int x = tile.getX();
+        int y = tile.getY();
+
+        float dx = ((float) getWidth()) / FIELD_WIDTH;
+        float dy = ((float) getHeight()) / FIELD_HEIGHT;
+
+        Paint fruitPaint = new Paint();
+        fruitPaint.setColor(DefaultColor.OBSTACLE_STONE.getColor());
         fruitPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 
         canvas.drawRect(x * dx, y * dy, (x+1) * dx, (y+1) * dy, fruitPaint);

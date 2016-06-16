@@ -19,8 +19,31 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Initialize colors
+        DefaultColor.BACKGROUND.setColor(getResources().getColor(android.R.color.black));
+        DefaultColor.FRUIT_COLOR.setColor(getResources().getColor(android.R.color.holo_green_light));
+        DefaultColor.SNAKE_COLOR.setColor(getResources().getColor(android.R.color.holo_red_light));
+        DefaultColor.OBSTACLE_STONE.setColor(getResources().getColor(android.R.color.darker_gray));
+        DefaultColor.OBSTACLE_WOOD.setColor(getResources().getColor(android.R.color.holo_orange_light));
+
         gameFieldView = (GameField) this.findViewById(R.id.game_field);
         this.gameHandler = new GameHandler(gameFieldView, new ThreadInterface() {
+
+            @Override
+            public void startThread() {
+
+                gameThread = new Thread(new SnakeRunner(100L));
+                gameThread.start();
+
+            }
+
+            @Override
+            public void startThread(long frameSpeed) {
+
+                gameThread = new Thread(new SnakeRunner(frameSpeed));
+                gameThread.start();
+
+            }
 
             @Override
             public void stopThread() {
@@ -32,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         this.gameHandler.createGame();
-
         this.gameFieldView.setGameHandler(gameHandler);
 
     }
@@ -41,9 +63,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
 
         super.onStart();
-
-        gameThread = new Thread(new SnakeRunner());
-        gameThread.start();
 
     }
 
@@ -55,8 +74,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
-
     public void turnLeft(View view) {
         gameHandler.turnSnake(GameHandler.Control.LEFT);
     }
@@ -67,14 +84,22 @@ public class MainActivity extends AppCompatActivity {
 
     class SnakeRunner implements Runnable {
 
+        private long frameSpeed;
+
+        public SnakeRunner(long frameSpeed) {
+
+            this.frameSpeed = frameSpeed;
+
+        }
+
         @Override
         public void run() {
 
             try {
 
-                while(true) {
+                while(!Thread.currentThread().isInterrupted()) {
 
-                    Thread.sleep(100L);
+                    Thread.sleep(frameSpeed);
                     gameHandler.nextFrame();
 
                     MainActivity.this.runOnUiThread(new Runnable() {
@@ -99,6 +124,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     interface ThreadInterface {
+
+        void startThread();
+
+        void startThread(long frameSpeed);
 
         void stopThread();
 
