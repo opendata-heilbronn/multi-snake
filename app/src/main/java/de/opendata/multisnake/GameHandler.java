@@ -39,7 +39,7 @@ public class GameHandler {
     public void startLevel(Level level) {
 
         this.level = level;
-        snake = new Snake(); //todo geht das OHNE die alte zu löschen?
+        snake = new Snake();
 
         generateFruits();
 
@@ -102,7 +102,7 @@ public class GameHandler {
 
     }
 
-    public void nextFrame() {
+    public void nextFrame() { //TODO ACHTUNG: WIRD MACNHMAL NOCH NACH LEVEL ENDE AUFGERUFEN!!!
 
         snake.removeTail();
 
@@ -166,8 +166,7 @@ public class GameHandler {
 
     private void endLevel(Result result) {
 
-        threadInterface.stopThread();
-        snake.moveHead();
+        threadInterface.stopThread(); //todo ACHTUNG: Nebenläufigkeitsproblem!
 
         if(result == Result.SUCCESS) {
 

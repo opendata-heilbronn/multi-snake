@@ -11,11 +11,13 @@ import de.opendata.multisnake.tiles.ObjectTile;
 public class Snake {
 
     private Direction direction = Direction.EAST;
-    private LinkedList<ObjectTile> body = new LinkedList<ObjectTile>();
+    private LinkedList<ObjectTile> body;
 
     private ObjectTile virtualBodyTile; //the removed but yet not inserted body part
 
     public Snake() {
+
+        body = new LinkedList<ObjectTile>();
 
         body.add(new ObjectTile(0, 0));
         addBodyTile();
