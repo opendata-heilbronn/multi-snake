@@ -79,7 +79,12 @@ public class GameField extends View {
 
             for (ObjectTile tile : snake.getBody()) {
 
-                drawSnakeTile(tile, canvas);
+                if(tile != null) {
+
+                    //TODO ACHTUNG: ES GIBT null tiles! woher?! (erst ab level 2)
+                    drawSnakeTile(tile, canvas);
+
+                }
 
             }
 

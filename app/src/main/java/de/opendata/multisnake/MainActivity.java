@@ -14,6 +14,9 @@ public class MainActivity extends AppCompatActivity {
     private GameHandler gameHandler;
     private GameField gameFieldView;
 
+    private SnakeThread gameThread;
+
+    private boolean keepActive;
     private Thread gameThread;
 	private WebSocketServer server;
 
@@ -36,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void startThread() {
 
-                gameThread = new Thread(new SnakeRunner(100L));
+                gameThread = new SnakeThread(1000L);
                 gameThread.start();
 
             }
@@ -44,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void startThread(long frameSpeed) {
 
-                gameThread = new Thread(new SnakeRunner(frameSpeed));
+                gameThread = new SnakeThread(frameSpeed);
                 gameThread.start();
 
             }
@@ -52,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void stopThread() {
 
-                gameThread.interrupt();
+                gameThread.stopGameThread();
 
             }
 
@@ -66,6 +69,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
+		if(gameThread == null || gameThread.isGameThreadStopped()) {
+
+			gameThread = new SnakeThread(1000L);
+			gameThread.start();
+
+		}
+
 		server = GameServer.getInstance(Utils.getIPAddress(true), new GameController() {
 
 			@Override
@@ -88,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
 
         super.onPause();
-        gameThread.interrupt();
+		gameThread.stopGameThread();
 		try {
 			server.stop();
 		}
@@ -108,13 +119,26 @@ public class MainActivity extends AppCompatActivity {
         gameHandler.turnSnake(GameHandler.Control.RIGHT);
     }
 
-    class SnakeRunner implements Runnable {
+    class SnakeThread extends Thread {
 
         private long frameSpeed;
+        private boolean keepActive = true;
 
-        public SnakeRunner(long frameSpeed) {
+        public SnakeThread(long frameSpeed) {
 
             this.frameSpeed = frameSpeed;
+
+        }
+
+        public void stopGameThread() {
+
+            this.keepActive = false;
+
+        }
+
+        public boolean isGameThreadStopped() {
+
+            return !this.keepActive;
 
         }
 
@@ -123,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
 
             try {
 
-                while(!Thread.currentThread().isInterrupted()) {
+                while(keepActive) {
 
                     Thread.sleep(frameSpeed);
                     gameHandler.nextFrame();
