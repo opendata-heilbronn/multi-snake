@@ -8,8 +8,11 @@ import android.view.View;
 
 import java.util.List;
 
+import de.opendata.multisnake.tiles.Fruit;
 import de.opendata.multisnake.tiles.ObjectTile;
 import de.opendata.multisnake.tiles.Obstacle;
+import de.opendata.multisnake.tiles.SnakeTile;
+import de.opendata.multisnake.tiles.SolidObjectTile;
 
 /**
  * Created by bambus on 16.06.16.
@@ -55,19 +58,19 @@ public class GameField extends View {
 
             for (Obstacle obstacle : obstacles) {
 
-                drawObstacleTile(obstacle, canvas);
+                drawSolidObjectTile(obstacle, canvas);
 
             }
 
         }
 
         //Fruits draw
-        List<ObjectTile> fruits = gameHandler.getFruits();
+        List<Fruit> fruits = gameHandler.getFruits();
         if(fruits.size() > 0) {
 
-            for (ObjectTile fruit : fruits) {
+            for (Fruit fruit : fruits) {
 
-                drawFruitTile(fruit, canvas);
+                drawSolidObjectTile(fruit, canvas);
 
             }
 
@@ -77,14 +80,9 @@ public class GameField extends View {
         Snake snake = gameHandler.getSnake();
         if(snake != null) {
 
-            for (ObjectTile tile : snake.getBody()) {
+            for (SnakeTile tile : snake.getBody()) {
 
-                if(tile != null) {
-
-                    //TODO ACHTUNG: ES GIBT null tiles! woher?! (erst ab level 2)
-                    drawSnakeTile(tile, canvas);
-
-                }
+                drawSolidObjectTile(tile, canvas);
 
             }
 
@@ -92,6 +90,8 @@ public class GameField extends View {
 
     }
 
+    //todo deprecated: use new solid object tile method .getPaint() and method .drawSolidObjectTile()
+    /*
     private void drawSnakeTile(ObjectTile tile, Canvas canvas) {
 
         int x = tile.getX();
@@ -108,10 +108,10 @@ public class GameField extends View {
 
     }
 
-    private void drawFruitTile(ObjectTile tile, Canvas canvas) {
+    private void drawFruitTile(Fruit fruit, Canvas canvas) {
 
-        int x = tile.getX();
-        int y = tile.getY();
+        int x = fruit.getX();
+        int y = fruit.getY();
 
         float dx = ((float) getWidth()) / FIELD_WIDTH;
         float dy = ((float) getHeight()) / FIELD_HEIGHT;
@@ -137,6 +137,18 @@ public class GameField extends View {
         fruitPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 
         canvas.drawRect(x * dx, y * dy, (x+1) * dx, (y+1) * dy, fruitPaint);
+
+    }*/
+
+    private void drawSolidObjectTile(SolidObjectTile tile, Canvas canvas) {
+
+        int x = tile.getX();
+        int y = tile.getY();
+
+        float dx = ((float) getWidth()) / FIELD_WIDTH;
+        float dy = ((float) getHeight()) / FIELD_HEIGHT;
+
+        canvas.drawRect(x * dx, y * dy, (x+1) * dx, (y+1) * dy, tile.getPaint());
 
     }
 

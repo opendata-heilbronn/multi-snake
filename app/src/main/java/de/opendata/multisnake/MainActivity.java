@@ -1,6 +1,5 @@
 package de.opendata.multisnake;
 
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,16 +7,22 @@ import android.view.View;
 import org.java_websocket.server.WebSocketServer;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
+    public static final String TAG = MainActivity.class.getSimpleName();
+
+    private List<LifecycleListener> lifecycleListeners = new ArrayList<LifecycleListener>();
 
     private GameHandler gameHandler;
     private GameField gameFieldView;
 
-    private SnakeThread gameThread;
+    private GameThread gameThread;
+    private ThreadInterface threadInterface;
 
     private boolean keepActive;
-    private Thread gameThread;
 	private WebSocketServer server;
 
 	@Override
@@ -33,49 +38,63 @@ public class MainActivity extends AppCompatActivity {
         DefaultColor.OBSTACLE_STONE.setColor(getResources().getColor(android.R.color.darker_gray));
         DefaultColor.OBSTACLE_WOOD.setColor(getResources().getColor(android.R.color.holo_orange_light));
 
-        gameFieldView = (GameField) this.findViewById(R.id.game_field);
-        this.gameHandler = new GameHandler(gameFieldView, new ThreadInterface() {
+        this.gameFieldView = (GameField) this.findViewById(R.id.game_field);
+        this.threadInterface = new ThreadInterface() {
 
+            //an interface for the game handler to communicate with the UI thread
             @Override
-            public void startThread() {
+            public void startThread(long frameSpeed) {
 
-                gameThread = new SnakeThread(1000L);
-                gameThread.start();
+                if(gameThread == null || gameThread.isSetToStop()) {
+
+                    gameThread = new GameThread(frameSpeed);
+                    gameThread.start();
+
+                    Log.v(TAG, "Started game thread");
+
+                }
+
+                else Log.v(TAG, "Did not start game thread - already running");
 
             }
 
             @Override
-            public void startThread(long frameSpeed) {
+            public boolean isThreadStopped() {
 
-                gameThread = new SnakeThread(frameSpeed);
-                gameThread.start();
+                return gameThread.isSetToStop();
 
             }
 
             @Override
             public void stopThread() {
 
-                gameThread.stopGameThread();
+                if(gameThread == null || gameThread.isSetToStop()) Log.v(TAG, "Did not stop game thread - already stopped");
+
+                else {
+
+                    gameThread.stopGameThread();
+                    Log.v(TAG, "Stopped game thread");
+
+                }
 
             }
 
-        });
+        };
 
-        this.gameHandler.createGame();
+        this.gameHandler = new GameHandler(gameFieldView, this.threadInterface);
+
         this.gameFieldView.setGameHandler(gameHandler);
+        this.gameHandler.createGame();
 
     }
 
     @Override
     protected void onStart() {
+
         super.onStart();
 
-		if(gameThread == null || gameThread.isGameThreadStopped()) {
-
-			gameThread = new SnakeThread(1000L);
-			gameThread.start();
-
-		}
+        this.threadInterface.startThread(this.gameHandler.getLevel().getFrameSpeed());
+		this.gameHandler.notifyStart(); //todo use list
 
 		server = GameServer.getInstance(Utils.getIPAddress(true), new GameController() {
 
@@ -90,8 +109,8 @@ public class MainActivity extends AppCompatActivity {
 				Log.i("SNAKE", "right");
 				turnRight(null);
 			}
-		});
 
+		});
 
 	}
 
@@ -99,7 +118,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
 
         super.onPause();
-		gameThread.stopGameThread();
+
+        this.threadInterface.stopThread();
+        this.gameHandler.notifyPause(); //todo use list
+
 		try {
 			server.stop();
 		}
@@ -119,12 +141,12 @@ public class MainActivity extends AppCompatActivity {
         gameHandler.turnSnake(GameHandler.Control.RIGHT);
     }
 
-    class SnakeThread extends Thread {
+    class GameThread extends Thread {
 
         private long frameSpeed;
         private boolean keepActive = true;
 
-        public SnakeThread(long frameSpeed) {
+        public GameThread(long frameSpeed) {
 
             this.frameSpeed = frameSpeed;
 
@@ -136,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-        public boolean isGameThreadStopped() {
+        public boolean isSetToStop() {
 
             return !this.keepActive;
 
@@ -145,27 +167,31 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void run() {
 
-            try {
+            while(keepActive) {
 
-                while(keepActive) {
+                //Log.v(TAG, "I'm still alive: " + Thread.currentThread().getName());
+
+                gameHandler.beforeNextFrame();
+
+                MainActivity.this.runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        gameFieldView.invalidate(); //obwohl es nicht mehr alive ist, tut er es noch ein mal invalidaten
+                    }
+
+                });
+
+                try {
 
                     Thread.sleep(frameSpeed);
-                    gameHandler.nextFrame();
-
-                    MainActivity.this.runOnUiThread(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            gameFieldView.invalidate();
-                        }
-
-                    });
 
                 }
+                catch (InterruptedException e) {
+                    this.stopGameThread();
+                }
 
-            }
-
-            catch (InterruptedException e) {
+                gameHandler.afterNextFrame();
 
             }
 
@@ -175,9 +201,9 @@ public class MainActivity extends AppCompatActivity {
 
     interface ThreadInterface {
 
-        void startThread();
-
         void startThread(long frameSpeed);
+
+        boolean isThreadStopped();
 
         void stopThread();
 

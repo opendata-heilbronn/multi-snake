@@ -5,13 +5,14 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.opendata.multisnake.tiles.Fruit;
 import de.opendata.multisnake.tiles.ObjectTile;
 import de.opendata.multisnake.tiles.Obstacle;
 
 /**
  * Created by bambus on 16.06.16.
  */
-public class GameHandler {
+public class GameHandler implements LifecycleListener {
 
     public static final String TAG = "GameHandler";
 
@@ -19,7 +20,7 @@ public class GameHandler {
     private MainActivity.ThreadInterface threadInterface;
 
     private Snake snake;
-    private List<ObjectTile> fruits = new ArrayList<ObjectTile>();
+    private List<Fruit> fruits;
 
     private Level level;
 
@@ -33,6 +34,16 @@ public class GameHandler {
     public void createGame() {
 
         startLevel(Level.CLASSIC_01);
+
+    }
+
+    @Override
+    public void notifyStart() {
+
+    }
+
+    @Override
+    public void notifyPause() {
 
     }
 
@@ -51,11 +62,12 @@ public class GameHandler {
 
     public void generateFruits() {
 
+        this.fruits = new ArrayList<Fruit>();
         int fruitsToGenerate = this.level.getFruitCount();
 
         for(int i = 0; i < fruitsToGenerate; i++) {
 
-            putRandomFruit();
+            generateRandomFruit();
 
         }
 
@@ -67,7 +79,7 @@ public class GameHandler {
 
     }
 
-    private void putRandomFruit() {
+    private void generateRandomFruit() {
 
         int x = (int) (Math.random() * GameField.FIELD_WIDTH);
         int y = (int) (Math.random() * GameField.FIELD_HEIGHT);
@@ -76,18 +88,18 @@ public class GameHandler {
 
             if(fruit.getX() == x || fruit.getY() == y) {
 
-                putRandomFruit(); //todo schwer zu lesen
+                generateRandomFruit(); //achtung: rekursiv
                 return;
 
             }
 
         }
 
-        fruits.add(new ObjectTile(x, y));
+        fruits.add(new Fruit(x, y));
 
     }
 
-    public List<ObjectTile> getFruits() {
+    public List<Fruit> getFruits() {
         return fruits;
     }
 
@@ -102,7 +114,8 @@ public class GameHandler {
 
     }
 
-    public void nextFrame() { //TODO ACHTUNG: WIRD MACNHMAL NOCH NACH LEVEL ENDE AUFGERUFEN!!!
+    //called BEFORE the frame is about to be drawn to the UI
+    public synchronized void beforeNextFrame() {
 
         snake.removeTail();
 
@@ -150,9 +163,7 @@ public class GameHandler {
 
                 snake.addBodyTile();
                 getFruits().remove(fruit);
-                Log.v(TAG, "Tile added :)");
-
-                if(getFruits().size() <= 0) endLevel(Result.SUCCESS);
+                Log.v(TAG, "Fruit eaten :)");
 
                 break;
 
@@ -164,19 +175,32 @@ public class GameHandler {
 
     }
 
+    //called AFTER the frame was drawn
+    public synchronized void afterNextFrame() {
+
+        if(getFruits().size() <= 0) endLevel(Result.SUCCESS);
+
+    }
+
     private void endLevel(Result result) {
 
-        threadInterface.stopThread(); //todo ACHTUNG: Nebenläufigkeitsproblem!
+        threadInterface.stopThread();
 
         if(result == Result.SUCCESS) {
 
             switch (this.getLevel()) {
 
-                case CLASSIC_01: this.startLevel(Level.DESERT_OF_DOOM_02);
+                case CLASSIC_01:
+                    this.startLevel(Level.DESERT_OF_DOOM_02);
+                    break;
 
-                case DESERT_OF_DOOM_02: this.startLevel(Level.BEACH_OF_EXHAUSTING_03);
+                case DESERT_OF_DOOM_02:
+                    this.startLevel(Level.BEACH_OF_EXHAUSTING_03);
+                    break;
 
-                default: this.startLevel(Level.CLASSIC_01);
+                default:
+                    this.startLevel(Level.CLASSIC_01);
+                    break;
 
             }
         }

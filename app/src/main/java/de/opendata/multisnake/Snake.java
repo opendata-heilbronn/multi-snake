@@ -1,27 +1,34 @@
 package de.opendata.multisnake;
 
+import android.util.Log;
+
 import java.util.LinkedList;
 import java.util.List;
 
 import de.opendata.multisnake.tiles.ObjectTile;
+import de.opendata.multisnake.tiles.SnakeTile;
 
 /**
  * Created by bambus on 16.06.16.
  */
 public class Snake {
 
-    private Direction direction = Direction.EAST;
-    private LinkedList<ObjectTile> body;
+    public static final String TAG = Snake.class.getSimpleName();
 
-    private ObjectTile virtualBodyTile; //the removed but yet not inserted body part
+    private Direction direction = Direction.EAST;
+    private LinkedList<SnakeTile> body;
+
+    private SnakeTile virtualBodyTile; //the removed but yet not inserted body part
 
     public Snake() {
 
-        body = new LinkedList<ObjectTile>();
+        body = new LinkedList<SnakeTile>();
 
-        body.add(new ObjectTile(0, 0));
-        addBodyTile();
-        addBodyTile();
+        body.add(new SnakeTile(0, 0));
+        body.add(new SnakeTile(1, 0));
+        body.add(new SnakeTile(2, 0));
+        //addBodyTile(); //mit diesen Methoden wächst die Schlange aus sich heraus!
+        //addBodyTile();
 
     }
 
@@ -29,7 +36,7 @@ public class Snake {
         this.direction = direction;
     }
 
-    public List<ObjectTile> getBody() {
+    public List<SnakeTile> getBody() {
 
         return body;
 
@@ -37,13 +44,20 @@ public class Snake {
 
     public void addBodyTile() {
 
-        body.add(new ObjectTile(getHead().getX(), getHead().getY()));
+        body.add(new SnakeTile(getHead().getX(), getHead().getY()));
+        Log.v(TAG, "Snake length +1 (now " + body.size() + ")");
 
     }
 
     public ObjectTile getHead() {
 
         return body.peekLast();
+
+    }
+
+    public ObjectTile getTail() {
+
+        return body.peekFirst();
 
     }
 
