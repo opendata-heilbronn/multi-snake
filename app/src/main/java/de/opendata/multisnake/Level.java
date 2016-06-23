@@ -12,7 +12,7 @@ public enum Level {
 
     CLASSIC_01(DefaultColor.BACKGROUND.getColor(), 100L, 1, 10,10,11,10,12,10,13,10,14,10,15,10,16,10,17,10,18,10,19,10,20,10),
     DESERT_OF_DOOM_02(DefaultColor.BACKGROUND.getColor(), 80L, 3, 10,10,11,10,12,10,13,10,14,10,15,10,16,10,17,10,18,10,19,10,20,10),
-    BEACH_OF_EXHAUSTING_03(DefaultColor.OBSTACLE_WOOD.getColor(), 60L, 5, 50,50,50,51,50,52,50,53,50,54,50,55,50,56,50,57);
+    BEACH_OF_EXHAUSTING_03(DefaultColor.OBSTACLE_WOOD.getColor(), 60L, 5, 10,10,11,10,12,10,13,10,14,10,15,10,16,10,17,10,18,10,19,10,20,10,10,11,10,12,10,13,10,14,10,15,10,16,10,17,10,18,10,19,10,20);
 
     private int backgroundColor;
     private long frameSpeed;

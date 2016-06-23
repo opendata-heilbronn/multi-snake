@@ -4,6 +4,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
+
 import org.java_websocket.server.WebSocketServer;
 
 import java.io.IOException;
@@ -22,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
     private GameThread gameThread;
     private ThreadInterface threadInterface;
 
-    private boolean keepActive;
+    private volatile boolean keepActive;
 	private WebSocketServer server;
 
 	@Override
@@ -139,6 +141,15 @@ public class MainActivity extends AppCompatActivity {
 
     public void turnRight(View view) {
         gameHandler.turnSnake(GameHandler.Control.RIGHT);
+    }
+
+    public void onResetButtonClick(View view) {
+
+        gameHandler.endLevel(GameHandler.Result.ABORT);
+        gameHandler.createGame();
+
+        Log.d(TAG, "Resetted game");
+
     }
 
     class GameThread extends Thread {

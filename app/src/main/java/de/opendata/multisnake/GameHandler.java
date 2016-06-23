@@ -182,7 +182,7 @@ public class GameHandler implements LifecycleListener {
 
     }
 
-    private void endLevel(Result result) {
+    public void endLevel(Result result) {
 
         threadInterface.stopThread();
 
@@ -205,6 +205,9 @@ public class GameHandler implements LifecycleListener {
             }
         }
 
+        else if(result == Result.ABORT) {
+
+        }
 
         else {
 
@@ -212,16 +215,17 @@ public class GameHandler implements LifecycleListener {
 
     }
 
-    enum Control {
+    public enum Control {
 
         LEFT,
         RIGHT;
 
     }
 
-    enum Result {
+    public enum Result {
 
         SUCCESS,
+        ABORT,
         FAIL;
 
     }
