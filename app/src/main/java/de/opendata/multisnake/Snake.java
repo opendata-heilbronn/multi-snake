@@ -43,6 +43,12 @@ public class Snake {
 
     }
 
+    public ObjectTile getTail() {
+
+        return body.peekFirst();
+
+    }
+
     public void removeTail() {
 
         virtualBodyTile = body.pollFirst();

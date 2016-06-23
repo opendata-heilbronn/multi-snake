@@ -65,6 +65,10 @@ public class MainActivity extends AppCompatActivity {
         gameHandler.turnSnake(GameHandler.Control.RIGHT);
     }
 
+    public void putCrap(View view) {
+        gameHandler.putCrap();
+    }
+
     class SnakeRunner implements Runnable {
 
         @Override

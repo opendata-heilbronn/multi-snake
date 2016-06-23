@@ -29,6 +29,15 @@
             android:onClick="turnLeft"/>
 
         <Button
+            android:id="@+id/crap_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="CRAP"
+            android:padding="10dp"
+            android:onClick="putCrap"/>
+
+        <Button
             android:id="@+id/right_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

@@ -20,6 +20,7 @@ public class GameField extends View {
 
     private int backgroundColor;
     private int fruitColor;
+    private int crapColor;
     private int snakeColor;
 
     public GameField(Context context) {
@@ -41,6 +42,7 @@ public class GameField extends View {
 
         backgroundColor = getContext().getResources().getColor(android.R.color.black);
         fruitColor = getContext().getResources().getColor(android.R.color.holo_green_light);
+        crapColor = getContext().getResources().getColor(android.R.color.holo_orange_dark);
         snakeColor = getContext().getResources().getColor(android.R.color.holo_red_light);
 
     }
@@ -68,6 +70,18 @@ public class GameField extends View {
             for (ObjectTile fruit : fruits) {
 
                 drawFruitTile(fruit, canvas);
+
+            }
+
+        }
+
+        //Crap draw
+        List<ObjectTile> craps = gameHandler.getCraps();
+        if(craps.size() > 0) {
+
+            for (ObjectTile crap : craps) {
+
+                drawCrapTile(crap, canvas);
 
             }
 
@@ -116,6 +130,22 @@ public class GameField extends View {
         fruitPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 
         canvas.drawRect(x * dx, y * dy, (x+1) * dx, (y+1) * dy, fruitPaint);
+
+    }
+
+    private void drawCrapTile(ObjectTile tile, Canvas canvas) {
+
+        int x = tile.getX();
+        int y = tile.getY();
+
+        float dx = ((float) getWidth()) / FIELD_WIDTH;
+        float dy = ((float) getHeight()) / FIELD_HEIGHT;
+
+        Paint crapPaint = new Paint();
+        crapPaint.setColor(crapColor);
+        crapPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+
+        canvas.drawRect(x * dx, y * dy, (x+1) * dx, (y+1) * dy, crapPaint);
 
     }
 
